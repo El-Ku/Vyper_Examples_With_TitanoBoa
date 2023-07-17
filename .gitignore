@@ -1,0 +1,4 @@
+__pycache__/
+__.pytest_cache__/
+
+all_contracts/test/
