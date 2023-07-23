@@ -49,7 +49,7 @@ def test_deposit_via_default_function(fund_me):
     boa.env.set_balance(USER0, SEND_AMOUNT)
     with boa.env.prank(USER0):
         with pytest.raises(eth.exceptions.Revert):  # makes sure that the call got reverted
-            boa.env.call(fund_me.address, value = SEND_AMOUNT)  
+            boa.env.raw_call(fund_me.address, value = SEND_AMOUNT)  
     assert boa.env.get_balance(fund_me.address) == 0  # makes sure that the fund_me contract has zero ether in it.
    
 # More than MAX_USER_LIST_SIZE depositors cannot deposit before funds are withdrawn by owner

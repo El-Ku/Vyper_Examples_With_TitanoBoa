@@ -1,4 +1,5 @@
 __pycache__/
 __.pytest_cache__/
+__.ipynb_checkpoints__/
 
 all_contracts/test/
