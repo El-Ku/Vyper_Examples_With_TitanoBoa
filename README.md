@@ -56,3 +56,9 @@ This is super simple vyper code. The only reason I added this to repo is that it
 This is from the [solidity repo](https://github.com/El-Ku/FundMe-F23) I created when I was following Patrick's Foundry course. This contract allows users(funders) to fund a particular contract with native token. The accumulated tokens can be withdrawn by the owner of the contract anytime. There is a minimum amount of dollars worth of tokens one has to deposit funds successfully.
 
 I have almost fully converted the solidity codes available in that repo to vyper. 
+
+### 3. Payment Splitter
+
+This lets anyone create a payment splitter contract via a factory contract. The user can pass on a set of addresses and shares of each of those addresses in the contract funds. The funds are added by the owner of the splitter contract at creation time. After a period of 7 days, the unwithdrawn funds can be withdrawn by the owner. If all the accounts did exercise their right to withdraw, the contract should have zero funds left. 
+
+The factory contract takes a fixed fee in eth when a user creates a splitter contract. The owner of the factory can change the fee, but it becomes effective only after a minimum of 10 blocks.

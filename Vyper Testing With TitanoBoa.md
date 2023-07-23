@@ -1,4 +1,5 @@
-# Vyper Tips 
+# Testing Vyper Contracts With TitanoBoa
+
 Being a relatively new language, Vyper at the moment has less docs available for us to refer to. And this can be frustrating. I have had my own share of frustration in this. So, here I have compiled some of the questions I had when I started Vyper programming and their answers. I hope you wouldnt have to struggle as much as I did on my journey. 
 
 Thanks to the awesome [Vyper Discord community](https://discord.gg/HBCFTeqm), especially [@big_tech_sux](https://twitter.com/big_tech_sux) for the support.
@@ -21,13 +22,13 @@ You can do it just like you would any other variable. Create the array in python
 def create_pay_splitter(_accounts: DynArray[address, 100], _shares: DynArray[uint256, 100]):
 
 # In python test file:
-    import random
-    accounts = []
-    shares = []
-    for i in range(5): # each array is of size 5
-        accounts.append(boa.env.generate_address())
-        s = random.randint(10,100)
-        shares.append(s)
+import random
+accounts = []
+shares = []
+for i in range(5): # each array is of size 5
+    accounts.append(boa.env.generate_address())
+    s = random.randint(10,100)
+    shares.append(s)
 
 factory.create_pay_splitter(accounts, shares, value=10**18)  # set msg.value as 1 ether
 ```
@@ -52,18 +53,18 @@ In your test file in python you can do it like this:
 ```python
 # call directly from the contract object
 with boa.env.prank(USER0):
-	factory.create_pay_splitter(accounts, shares, value=10**18)
+    factory.create_pay_splitter(accounts, shares, value=10**18)
     print('\n', factory.get_logs())
 ##### OR, like this also you can call the function
 with boa.env.prank(USER0):
-	ret_call = boa.env.raw_call(to_address= factory.address, value = 10**18, data=data)
+    ret_call = boa.env.raw_call(to_address= factory.address, value = 10**18, data=data)
     print('\n', factory.get_logs(ret_call))
 ```
 
 If there are two events logged, you can access them all from the same call to get_logs(). Example:
 ```python
-        print('\n\n',factory.get_logs()[0])  # 1st event emitted in the transaction
-        print('\n\n',factory.get_logs()[1])  # 2nd event emitted in the transaction
+    print('\n\n',factory.get_logs()[0])  # 1st event emitted in the transaction
+    print('\n\n',factory.get_logs()[1])  # 2nd event emitted in the transaction
 ```
 
 Note that `len(factory.get_logs())` will also return the number of events, which can be printed out in a `for` loop, if so desired.
@@ -79,8 +80,8 @@ The `init` arguments can be passed to the contract after the file name, each arg
 ### 7. How can I check for reverts?
 Example:
 ```python
-	with boa.reverts("msg.value cannot be zero"):   # the next statement should revert with the given error message.
-	    fund_me.fund_contract()
+with boa.reverts("msg.value cannot be zero"):   # the next statement should revert with the given error message.
+	fund_me.fund_contract()
 ```
 
 For people coming from Solidity background, there are no custom errors in Vyper. 
@@ -105,9 +106,9 @@ You can use either `raw_call` or `execute_code` for this.
 import eth.exceptions  # make sure to import this for error handling when using `raw_call`
 
 with boa.env.prank(USER0):
-        with pytest.raises(eth.exceptions.Revert):  # makes sure that the raw_call got reverted
-			# fund_me contract is sent some ether. which reverts as there is no __default__ method defined in it.
-            boa.env.raw_call(fund_me.address, value = SEND_AMOUNT)  
+    with pytest.raises(eth.exceptions.Revert):  # makes sure that the raw_call got reverted
+        # fund_me contract is sent some ether. which reverts as there is no __default__ method defined in it.
+        boa.env.raw_call(fund_me.address, value = SEND_AMOUNT)  
 ```
 
 The execute_code method doesn't revert on the above transaction. So we have to use a newly introduced method, `raw_call` as shown above.
@@ -137,7 +138,7 @@ assert pay_splitter.get_total_shares() == total_shares
 An example:
 
 ```python
-	function_signature = 'create_pay_splitter(address[],uint256[],address,uint256)'   
+    function_signature = 'create_pay_splitter(address[],uint256[],address,uint256)'   
     # Encode the function parameters
     encoded_params = encode(['address[]', 'uint256[]', 'address', 'uint256'], [accounts, shares, _token, _amount])
     # Concatenate the function signature(first 4 bytes) and encoded parameters
@@ -154,4 +155,3 @@ The accounts and shares are arrays and can be created, for example, in the follo
         shares.append(s)
 ```
 
-### 13. 
