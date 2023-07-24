@@ -4,6 +4,8 @@ Being a relatively new language, Vyper at the moment has less docs available for
 
 Thanks to the awesome [Vyper Discord community](https://discord.gg/HBCFTeqm), especially [@big_tech_sux](https://twitter.com/big_tech_sux) for the support.
 
+I will be updating this file as often as I can.
+
 # FAQ's:
 
 ### 1. My tests using Boa framework doesn't work as per its documentation.
@@ -154,4 +156,56 @@ The accounts and shares are arrays and can be created, for example, in the follo
         s = random.randint(10,100)
         shares.append(s)
 ```
+
+### 13. How do I get the coverage report?
+
+1. Install `coverage` in your venv with the following command:
+```bash
+python3 -m pip install coverage
+```
+2. Create a `.coveragerc` file in the project directory(in which you will run your pytest) and copy the following to it.
+```
+ [run] 
+ plugins = boa.coverage 
+```
+3. Run the tests with the following command and then generate the report.
+```bash
+coverage run -m pytest
+ # this will create a htmlcov folder in the project directory with coverage reports in html.
+coverage html 
+```
+
+### 14. How can I test simple Vyper modules with Boa. Can I do it all(Python test+Vyper module) in one file?
+
+Yes, For example, you can save the following in a `test.py` file and it will run fine:
+
+```python
+import boa
+import pytest
+
+contract = """
+amount: public(uint256)
+
+@external
+def __init__(_amount: uint256):
+    self.amount = _amount
+
+@external
+def set_amount(_amount: uint256):
+	self.amount = _amount
+"""
+
+@pytest.fixture(scope="session")
+def contract_deploy():
+    return boa.loads(contract, 1000)
+
+def test_contract(contract_deploy):
+	assert contract_deploy.amount() == 1000
+	contract_deploy.set_amount(100)
+	assert contract_deploy.amount() == 100
+```
+
+### 15. 
+
+
 
