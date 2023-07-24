@@ -18,7 +18,6 @@ TIME_LOCK_DURATION = 7*24*60*60  # one week in seconds
 def blueprint_impl():
     source = boa.load_partial("contracts/PaymentSplitter.vy") 
     blueprint = source.deploy_as_blueprint()
-    print(blueprint.bytecode.hex())
     return blueprint
 
 # deploy the factory contract and pass the splitter blueprint address to it.
@@ -26,7 +25,6 @@ def blueprint_impl():
 def splitter_factory(blueprint_impl):
     with boa.env.prank(ADMIN):
         factory =  boa.load("contracts/PaymentSplitterFactory.vy", blueprint_impl.address, FEE)
-        print(factory.bytecode.hex())
         return factory
 
 # deploy an ERC20 contract
