@@ -3,5 +3,6 @@ __.pytest_cache__/
 __.ipynb_checkpoints__/
 
 all_contracts/testProject/
+all_contracts/NFTLoanFi/
 
 __htmlcov__/

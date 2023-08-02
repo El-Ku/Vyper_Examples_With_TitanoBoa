@@ -17,15 +17,15 @@ def verify_splitter_creation(pay_splitter_addr, factory_address, user, accounts,
     pay_splitter_deployer = boa.load_partial("contracts/PaymentSplitter.vy")
     pay_splitter = pay_splitter_deployer.at(pay_splitter_addr)  
     assert boa.env.get_balance(pay_splitter.address) == value_to_sent-FEE
-    assert pay_splitter.i_total_shares() == total_shares
+    assert pay_splitter.total_shares() == total_shares
     for i in range(5):  # checks if accounts and shares are set properly
         acc, sh = pay_splitter.get_info_at_index(i)
         assert accounts[i] == acc
         assert shares[i] == sh
-    assert pay_splitter.i_owner() == user
-    assert pay_splitter.i_token() == _token
-    assert pay_splitter.i_total_eth_to_split() == value_to_sent - FEE
-    assert pay_splitter.i_total_tokens_to_split() == _amount
+    assert pay_splitter.owner() == user
+    assert pay_splitter.token() == _token
+    assert pay_splitter.total_eth_to_split() == value_to_sent - FEE
+    assert pay_splitter.total_tokens_to_split() == _amount
 
 # helper function to print the event logs. Can be disabled.
 def print_logs(logs):

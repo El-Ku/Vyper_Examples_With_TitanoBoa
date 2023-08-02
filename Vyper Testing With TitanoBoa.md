@@ -205,7 +205,24 @@ def test_contract(contract_deploy):
 	assert contract_deploy.amount() == 100
 ```
 
-### 15. 
+### 15. How can I nicely printout the abi of a Vyper contract? 
 
+You can use the standard Vyper command for this:
+```bash
+vyper -f abi contract.vy
+```
+
+But, this will print out the abi's all in one line. So if you want the abi's in multiple lines you can use `jq`. 
+
+```bash
+# Install jq if you dont have it already
+sudo apt-get install jq 
+# run the normal command and pass it to jq. 
+vyper -f abi contract.vy | jq -c .[]
+```
+
+Thank you `Chanho` for the solution.
+
+### 16. 
 
 
