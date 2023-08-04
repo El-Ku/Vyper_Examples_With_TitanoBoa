@@ -11,11 +11,13 @@ from conftest import ZERO_ADDRESS
 
 ENABLE_PRINT_LOGS = False   # Make this true if you want the log's to get printed
 
+PAY_SPLITTER_DEPLOYER = boa.load_partial("contracts/PaymentSplitter.vy")
+
 # helper function to check that a splitter contract is created properly. 
 def verify_splitter_creation(pay_splitter_addr, factory_address, user, accounts, shares, _token, _amount, total_shares, value_to_sent) -> bool:
     # these two lines typecast the address of the contract to VyperContract. 
-    pay_splitter_deployer = boa.load_partial("contracts/PaymentSplitter.vy")
-    pay_splitter = pay_splitter_deployer.at(pay_splitter_addr)  
+    
+    pay_splitter = PAY_SPLITTER_DEPLOYER.at(pay_splitter_addr)  
     assert boa.env.get_balance(pay_splitter.address) == value_to_sent-FEE
     assert pay_splitter.i_total_shares() == total_shares
     for i in range(5):  # checks if accounts and shares are set properly
@@ -37,8 +39,7 @@ def print_logs(logs):
 
 # helper function to verify that the account holders are able to withdraw their share of funds from the splitter contract.
 def verify_getting_paid(accounts, shares, total_shares, pay_splitter_addr, num_splitters, erc20_token, value_to_sent, _amount, skip_last):
-    pay_splitter_deployer = boa.load_partial("contracts/PaymentSplitter.vy")
-    pay_splitter = pay_splitter_deployer.at(pay_splitter_addr)
+    pay_splitter = PAY_SPLITTER_DEPLOYER.at(pay_splitter_addr)
     if(skip_last == 1):  # the last person doesnt call the get_paid function. 
         num_splitters -= 1  
     for i in range(num_splitters):
@@ -197,8 +198,7 @@ def test_trying_to_get_paid_twice(splitter_factory, erc20_token):
         assert erc20_token.balanceOf(USER0) == 0
         assert erc20_token.balanceOf(pay_splitter_addr) == _amount
     # tries to get paid twice
-    pay_splitter_deployer = boa.load_partial("contracts/PaymentSplitter.vy")
-    pay_splitter = pay_splitter_deployer.at(pay_splitter_addr)
+    pay_splitter = PAY_SPLITTER_DEPLOYER.at(pay_splitter_addr)
     user = accounts[0]
     with boa.env.prank(user):
         assert pay_splitter.get_paid() == True  # first time calling get_paid()
@@ -229,8 +229,7 @@ def test_withdraw_after_lock_period(splitter_factory, erc20_token):
     # last account holder doesnt withdraw his funds.
     verify_getting_paid(accounts, shares, total_shares, pay_splitter_addr, num_splitters, erc20_token, value_to_sent, _amount, 1) 
 
-    pay_splitter_deployer = boa.load_partial("contracts/PaymentSplitter.vy")
-    pay_splitter = pay_splitter_deployer.at(pay_splitter_addr)
+    pay_splitter = PAY_SPLITTER_DEPLOYER.at(pay_splitter_addr)
 
     with boa.env.prank(USER1):
         with boa.reverts("Only owner can withdraw"):

@@ -1,0 +1,294 @@
+""
+********************************************************************************************************************************************************************************************************
+Contract,Computation,Count,Mean,Median,Stdev,Min,Max
+Path: contracts
+Name: PaymentSplitterFactory.vy
+Address: 0x8A94Be916F881CC5152a20f23ff1F849A507DDE6
+Function: , 15: i_owner: public(immutable(address)),8,27,23,13,23,62
+, 16: i_payment_splitter_blueprint: public(immutable(address)),7,28,23,14,23,62
+, 17: protocol_fee: public(uint256)  # fixed fee,6,84,84,66,23,145
+, 18: buffered_fee: public(uint256),3,23,23,0,23,23
+""
+Function: create_pay_splitter," 55: def create_pay_splitter(_accounts: DynArray[address, 100], _shares: DynArray[uint256, 100], _token: address, _amount: uint256) -> address:",8,38,38,0,38,38
+""
+Function: request_to_set_protocol_fee, 75: def request_to_set_protocol_fee(fee: uint256):,3,36,43,11,23,43
+," 80: assert msg.sender == i_owner, ""only owner can request a fee change""",2,44,44,0,44,44
+, 81: self.buffered_fee = fee,2,22103,22103,0,22103,22103
+, 82: self.requested_fee_change_at = block.number,2,22105,22105,0,22105,22105
+, 83: log FeeChangeRequested(fee),2,1039,1039,0,1039,1039
+""
+Function: set_protocol_fee, 86: def set_protocol_fee():,1,22,22,0,22,22
+," 90: assert self.requested_fee_change_at + TIME_LOCK_FOR_BLOCKS <= block.number, ""time lock period to change fee is not yet over""",1,161,161,0,161,161
+," 91: log FeeChanged(self.protocol_fee, self.buffered_fee)",1,1610,1610,0,1610,1610
+, 92: self.protocol_fee = self.buffered_fee,1,205,205,0,205,205
+""
+""
+********************************************************************************************************************************************************************************************************
+Contract,Computation,Count,Mean,Median,Stdev,Min,Max
+Path: contracts
+Name: PaymentSplitterFactory.vy
+Address: 0xD130B7E7F212ECADCfcCa3cecC89f85ce6465896
+Function: get_nonces, 96: def get_nonces(user: address) -> uint256:,15,89,89,0,89,89
+,102: return self.nonces[user],15,1245,2179,1032,179,2179
+""
+Function: create_pay_splitter," 55: def create_pay_splitter(_accounts: DynArray[address, 100], _shares: DynArray[uint256, 100], _token: address, _amount: uint256) -> address:",22,489,38,676,38,1457
+, 64: self.nonces[msg.sender] += 1  # increment nonce for unique addresses,7,17364,20207,7521,307,20207
+, 66: value_to_be_send: uint256 = msg.value - self.protocol_fee,7,154,154,0,154,154
+," 67: splitter: address = create_from_blueprint(i_payment_splitter_blueprint, msg.sender, _accounts, _shares, _token, _amount, value=value_to_be_send, code_offset=3, salt=convert(self.nonces[msg.sender], bytes32))",7,37599,37957,944,35457,37957
+," 68: assert Paymentsplitter(splitter).i_total_shares() > 0, ""Splitter creation failed""",7,192,192,0,192,192
+, 69: if(_token != empty(address) and _amount > 0):  #transfer tokens from user to newly created contract if its necessary,7,57,60,6,43,60
+," 70: assert ERC20(_token).transferFrom(msg.sender, splitter, _amount) == True",6,42122,42539,1020,40039,42539
+," 71: log SplitterContractCreated(msg.sender, splitter, _accounts, _shares, _token, _amount, msg.value)  # Event ",7,6925,6930,10,6901,6930
+, 72: return splitter,7,3,3,0,3,3
+""
+Function: , 15: i_owner: public(immutable(address)),15,23,23,0,23,23
+, 16: i_payment_splitter_blueprint: public(immutable(address)),15,23,23,0,23,23
+, 17: protocol_fee: public(uint256)  # fixed fee,15,23,23,0,23,23
+, 18: buffered_fee: public(uint256),15,23,23,0,23,23
+""
+Function: request_to_set_protocol_fee, 75: def request_to_set_protocol_fee(fee: uint256):,15,23,23,0,23,23
+""
+Function: set_protocol_fee, 86: def set_protocol_fee():,15,23,23,0,23,23
+""
+""
+********************************************************************************************************************************************************************************************************
+Contract,Computation,Count,Mean,Median,Stdev,Min,Max
+Path: contracts
+Name: PaymentSplitter.vy
+Address: 0x74241D5CD779920c2590558Ce63C53a75A53f980
+Function: , 12: i_owner: public(immutable(address)),10,26,23,12,23,62
+, 13: i_created_at: public(immutable(uint256)),9,23,23,0,23,23
+, 16: i_total_eth_to_split: public(immutable(uint256)),9,27,23,13,23,62
+, 17: i_total_tokens_to_split: public(immutable(uint256)),8,27,23,13,23,62
+, 18: i_token: public(immutable(address)),7,28,23,14,23,62
+, 19: i_total_shares: public(immutable(uint256)),6,29,23,15,23,62
+""
+Function: get_info_at_index,"127: def get_info_at_index(index: uint256) -> (address, uint256):",5,49,49,0,49,49
+,"133: return (i_accounts[index], i_shares[index])",5,186,186,0,186,186
+""
+Function: get_paid, 65: def get_paid() -> bool:,5,23,23,0,23,23
+""
+Function: withdraw, 92: def withdraw() -> bool:,5,23,23,0,23,23
+""
+Function: get_account_share,"108: def get_account_share(acc: address) -> (uint256, uint256):",5,23,23,0,23,23
+""
+""
+********************************************************************************************************************************************************************************************************
+Contract,Computation,Count,Mean,Median,Stdev,Min,Max
+Path: contracts
+Name: ERC20.vy
+Address: 0x37fDb059bF647b88Dbe172619F00b8e8b1Cf9338
+Function: transfer," 50: def transfer(_to : address, _value : uint256) -> bool:",46,63,89,32,23,89
+, 58: self.balanceOf[msg.sender] -= _value,28,-2534,308,7091,-19592,308
+, 59: self.balanceOf[_to] += _value,28,20712,20212,881,20212,22212
+," 60: log Transfer(msg.sender, _to, _value)",28,1806,1806,0,1806,1806
+, 61: return True,28,12,12,0,12,12
+""
+Function: , 21: name: public(immutable(String[33]))  # trigger different codegen,89,23,23,7,23,92
+, 22: symbol: public(immutable(String[32])),89,23,23,7,23,92
+, 23: decimals: public(immutable(uint8)),89,23,23,7,23,92
+," 29: balanceOf: public(HashMap[address, uint256])",89,352,23,660,23,2267
+," 31: allowance: public(HashMap[address, HashMap[address, uint256]])",46,23,23,0,23,23
+, 33: totalSupply: public(uint256),46,23,23,0,23,23
+""
+Function: approve," 86: def approve(_spender : address, _value : uint256) -> bool:",6,89,89,0,89,89
+, 96: self.allowance[msg.sender][_spender] = _value,6,21885,22235,857,20135,22235
+," 97: log Approval(msg.sender, _spender, _value)",6,1794,1794,0,1794,1794
+, 98: return True,6,12,12,0,12,12
+""
+Function: transferFrom," 65: def transferFrom(_from : address, _to : address, _value : uint256) -> bool:",18,91,126,49,23,126
+," 74: assert self.balanceOf[_from] >= _value, ""balanceOf underflow""",12,189,189,0,189,189
+, 75: self.balanceOf[_from] -= _value,12,-19588,-19588,0,-19588,-19588
+, 76: self.balanceOf[_to] += _value,12,22212,22212,0,22212,22212
+," 79: assert self.allowance[_from][msg.sender] >= _value, ""allowance underflow""",12,258,258,0,258,258
+, 80: self.allowance[_from][msg.sender] -= _value,12,-19519,-19519,0,-19519,-19519
+," 81: log Transfer(_from, _to, _value)",12,1825,1825,0,1825,1825
+, 82: return True,12,12,12,0,12,12
+""
+""
+********************************************************************************************************************************************************************************************************
+Contract,Computation,Count,Mean,Median,Stdev,Min,Max
+Path: contracts
+Name: PaymentSplitter.vy
+Address: 0x62Ad0B30bA0D31198307210Cd79eF30Ab2f1608D
+Function: , 12: i_owner: public(immutable(address)),10,26,23,12,23,62
+, 13: i_created_at: public(immutable(uint256)),9,23,23,0,23,23
+, 16: i_total_eth_to_split: public(immutable(uint256)),9,27,23,13,23,62
+, 17: i_total_tokens_to_split: public(immutable(uint256)),8,27,23,13,23,62
+, 18: i_token: public(immutable(address)),7,28,23,14,23,62
+, 19: i_total_shares: public(immutable(uint256)),6,29,23,15,23,62
+""
+Function: get_info_at_index,"127: def get_info_at_index(index: uint256) -> (address, uint256):",5,49,49,0,49,49
+,"133: return (i_accounts[index], i_shares[index])",5,186,186,0,186,186
+""
+Function: get_paid, 65: def get_paid() -> bool:,5,23,23,0,23,23
+""
+Function: withdraw, 92: def withdraw() -> bool:,5,23,23,0,23,23
+""
+Function: get_account_share,"108: def get_account_share(acc: address) -> (uint256, uint256):",5,23,23,0,23,23
+""
+""
+********************************************************************************************************************************************************************************************************
+Contract,Computation,Count,Mean,Median,Stdev,Min,Max
+Path: contracts
+Name: PaymentSplitter.vy
+Address: 0x888856D11d83bBc80c37c3c6c2731F9083055Fb5
+Function: , 12: i_owner: public(immutable(address)),10,26,23,12,23,62
+, 13: i_created_at: public(immutable(uint256)),9,23,23,0,23,23
+, 16: i_total_eth_to_split: public(immutable(uint256)),9,27,23,13,23,62
+, 17: i_total_tokens_to_split: public(immutable(uint256)),8,27,23,13,23,62
+, 18: i_token: public(immutable(address)),7,28,23,14,23,62
+, 19: i_total_shares: public(immutable(uint256)),6,29,23,15,23,62
+""
+Function: get_info_at_index,"127: def get_info_at_index(index: uint256) -> (address, uint256):",5,49,49,0,49,49
+,"133: return (i_accounts[index], i_shares[index])",5,186,186,0,186,186
+""
+Function: get_paid, 65: def get_paid() -> bool:,5,23,23,0,23,23
+""
+Function: withdraw, 92: def withdraw() -> bool:,5,23,23,0,23,23
+""
+Function: get_account_share,"108: def get_account_share(acc: address) -> (uint256, uint256):",5,23,23,0,23,23
+""
+""
+********************************************************************************************************************************************************************************************************
+Contract,Computation,Count,Mean,Median,Stdev,Min,Max
+Path: contracts
+Name: PaymentSplitter.vy
+Address: 0xb0F74Ecaa726Bb94eac5C0334d011229a367F651
+Function: , 12: i_owner: public(immutable(address)),10,26,23,12,23,62
+, 13: i_created_at: public(immutable(uint256)),9,23,23,0,23,23
+, 16: i_total_eth_to_split: public(immutable(uint256)),9,27,23,13,23,62
+, 17: i_total_tokens_to_split: public(immutable(uint256)),8,27,23,13,23,62
+, 18: i_token: public(immutable(address)),7,28,23,14,23,62
+, 19: i_total_shares: public(immutable(uint256)),6,29,23,15,23,62
+""
+Function: get_info_at_index,"127: def get_info_at_index(index: uint256) -> (address, uint256):",5,49,49,0,49,49
+,"133: return (i_accounts[index], i_shares[index])",5,186,186,0,186,186
+""
+Function: get_paid, 65: def get_paid() -> bool:,5,23,23,0,23,23
+""
+Function: withdraw, 92: def withdraw() -> bool:,5,23,23,0,23,23
+""
+Function: get_account_share,"108: def get_account_share(acc: address) -> (uint256, uint256):",5,23,23,0,23,23
+""
+""
+********************************************************************************************************************************************************************************************************
+Contract,Computation,Count,Mean,Median,Stdev,Min,Max
+Path: contracts
+Name: PaymentSplitter.vy
+Address: 0x9F61DF5AeBe3246858A0BFBEDBaea40Cb17E0457
+Function: , 12: i_owner: public(immutable(address)),15,25,23,10,23,62
+, 13: i_created_at: public(immutable(uint256)),14,23,23,0,23,23
+, 16: i_total_eth_to_split: public(immutable(uint256)),14,25,23,10,23,62
+, 17: i_total_tokens_to_split: public(immutable(uint256)),13,26,23,10,23,62
+, 18: i_token: public(immutable(address)),12,26,23,11,23,62
+, 19: i_total_shares: public(immutable(uint256)),11,26,23,11,23,62
+""
+Function: get_info_at_index,"127: def get_info_at_index(index: uint256) -> (address, uint256):",5,49,49,0,49,49
+,"133: return (i_accounts[index], i_shares[index])",5,186,186,0,186,186
+""
+Function: get_paid, 65: def get_paid() -> bool:,10,142,70,147,23,406
+," 70: assert not self.paid_accounts[msg.sender], ""User has been already paid""",5,2185,2185,0,2185,2185
+, 71: i: uint256 = 0,5,47,47,0,47,47
+, 75: if msg.sender == account:,5,77,77,39,27,127
+, 76: acc_share = i_shares[i],5,84,84,0,84,84
+, 77: self.paid_accounts[msg.sender] = True,5,20065,20065,0,20065,20065
+, 78: break,5,11,11,0,11,11
+, 79: i += 1,4,120,120,61,48,192
+, 80: eth: uint256 = 0,5,20,20,0,20,20
+, 82: if i_total_eth_to_split > 0:,5,55,55,0,55,55
+, 83: eth = i_total_eth_to_split*acc_share/i_total_shares,5,142,142,0,142,142
+," 84: send(msg.sender, eth)  # send ether if its more than zero.",5,34326,34326,0,34326,34326
+, 85: if i_total_tokens_to_split > 0:,5,55,55,0,55,55
+, 86: tokens = i_total_tokens_to_split*acc_share/i_total_shares,5,134,134,0,134,134
+," 87: assert ERC20(i_token).transfer(msg.sender, tokens) == True # send erc20 tokens if its more than zero.",5,4258,278,8899,278,20178
+," 88: log SharesPaid(msg.sender, eth, tokens)  # Event",5,1672,1672,0,1672,1672
+, 89: return True,5,12,12,0,12,12
+""
+Function: withdraw, 92: def withdraw() -> bool:,5,23,23,0,23,23
+""
+Function: get_account_share,"108: def get_account_share(acc: address) -> (uint256, uint256):",5,23,23,0,23,23
+""
+""
+********************************************************************************************************************************************************************************************************
+Contract,Computation,Count,Mean,Median,Stdev,Min,Max
+Path: contracts
+Name: PaymentSplitter.vy
+Address: 0x38e72ff057C7969fec503C2c3C139A311ea6462b
+Function: , 12: i_owner: public(immutable(address)),11,26,23,11,23,62
+, 13: i_created_at: public(immutable(uint256)),10,23,23,0,23,23
+, 16: i_total_eth_to_split: public(immutable(uint256)),10,26,23,12,23,62
+, 17: i_total_tokens_to_split: public(immutable(uint256)),9,27,23,13,23,62
+, 18: i_token: public(immutable(address)),8,27,23,13,23,62
+, 19: i_total_shares: public(immutable(uint256)),7,28,23,14,23,62
+""
+Function: get_info_at_index,"127: def get_info_at_index(index: uint256) -> (address, uint256):",5,49,49,0,49,49
+,"133: return (i_accounts[index], i_shares[index])",5,186,186,0,186,186
+""
+Function: get_paid, 65: def get_paid() -> bool:,6,38,23,38,23,118
+," 70: assert not self.paid_accounts[msg.sender], ""User has been already paid""",1,2185,2185,0,2185,2185
+, 71: i: uint256 = 0,1,47,47,0,47,47
+, 75: if msg.sender == account:,1,27,27,0,27,27
+, 76: acc_share = i_shares[i],1,84,84,0,84,84
+, 77: self.paid_accounts[msg.sender] = True,1,20065,20065,0,20065,20065
+, 78: break,1,11,11,0,11,11
+, 80: eth: uint256 = 0,1,20,20,0,20,20
+, 82: if i_total_eth_to_split > 0:,1,55,55,0,55,55
+, 83: eth = i_total_eth_to_split*acc_share/i_total_shares,1,142,142,0,142,142
+," 84: send(msg.sender, eth)  # send ether if its more than zero.",1,34326,34326,0,34326,34326
+, 85: if i_total_tokens_to_split > 0:,1,55,55,0,55,55
+, 86: tokens = i_total_tokens_to_split*acc_share/i_total_shares,1,134,134,0,134,134
+," 87: assert ERC20(i_token).transfer(msg.sender, tokens) == True # send erc20 tokens if its more than zero.",1,278,278,0,278,278
+," 88: log SharesPaid(msg.sender, eth, tokens)  # Event",1,1672,1672,0,1672,1672
+, 89: return True,1,12,12,0,12,12
+""
+Function: withdraw, 92: def withdraw() -> bool:,5,23,23,0,23,23
+""
+Function: get_account_share,"108: def get_account_share(acc: address) -> (uint256, uint256):",5,23,23,0,23,23
+""
+""
+********************************************************************************************************************************************************************************************************
+Contract,Computation,Count,Mean,Median,Stdev,Min,Max
+Path: contracts
+Name: PaymentSplitter.vy
+Address: 0x2997239a7E25CC56fC7427dA00581E21FDEA4beF
+Function: , 12: i_owner: public(immutable(address)),15,25,23,10,23,62
+, 13: i_created_at: public(immutable(uint256)),14,23,23,0,23,23
+, 16: i_total_eth_to_split: public(immutable(uint256)),14,25,23,10,23,62
+, 17: i_total_tokens_to_split: public(immutable(uint256)),13,26,23,10,23,62
+, 18: i_token: public(immutable(address)),12,26,23,11,23,62
+, 19: i_total_shares: public(immutable(uint256)),11,26,23,11,23,62
+""
+Function: get_info_at_index,"127: def get_info_at_index(index: uint256) -> (address, uint256):",5,49,49,0,49,49
+,"133: return (i_accounts[index], i_shares[index])",5,186,186,0,186,186
+""
+Function: get_paid, 65: def get_paid() -> bool:,10,104,23,117,23,334
+," 70: assert not self.paid_accounts[msg.sender], ""User has been already paid""",4,2185,2185,0,2185,2185
+, 71: i: uint256 = 0,4,47,47,0,47,47
+, 75: if msg.sender == account:,4,64,64,32,27,102
+, 76: acc_share = i_shares[i],4,84,84,0,84,84
+, 77: self.paid_accounts[msg.sender] = True,4,20065,20065,0,20065,20065
+, 78: break,4,11,11,0,11,11
+, 79: i += 1,3,96,96,48,48,144
+, 80: eth: uint256 = 0,4,20,20,0,20,20
+, 82: if i_total_eth_to_split > 0:,4,55,55,0,55,55
+, 83: eth = i_total_eth_to_split*acc_share/i_total_shares,4,142,142,0,142,142
+," 84: send(msg.sender, eth)  # send ether if its more than zero.",4,34326,34326,0,34326,34326
+, 85: if i_total_tokens_to_split > 0:,4,55,55,0,55,55
+, 86: tokens = i_total_tokens_to_split*acc_share/i_total_shares,4,134,134,0,134,134
+," 87: assert ERC20(i_token).transfer(msg.sender, tokens) == True # send erc20 tokens if its more than zero.",4,278,278,0,278,278
+," 88: log SharesPaid(msg.sender, eth, tokens)  # Event",4,1672,1672,0,1672,1672
+, 89: return True,4,12,12,0,12,12
+""
+Function: withdraw, 92: def withdraw() -> bool:,6,23,23,0,23,25
+," 97: assert i_owner == msg.sender, ""Only owner can withdraw""",1,63,63,0,63,63
+," 98: assert block.timestamp >= i_created_at + TIME_LOCK_DURATION, ""Too early to withdraw funds""",1,58,58,0,58,58
+," 99: log FundsWithdrawn(self.balance, ERC20(i_token).balanceOf(self))   # Event ",1,1502,1502,0,1502,1502
+,100: if(self.balance > 0):,1,30,30,0,30,30
+,"101: send(i_owner, self.balance)",1,34342,34342,0,34342,34342
+,102: if(ERC20(i_token).balanceOf(self) > 0):,1,216,216,0,216,216
+,"103: assert ERC20(i_token).transfer(i_owner, ERC20(i_token).balanceOf(self)) == True",1,20388,20388,0,20388,20388
+,104: return True,1,12,12,0,12,12
+""
+Function: get_account_share,"108: def get_account_share(acc: address) -> (uint256, uint256):",5,23,23,0,23,23
+""

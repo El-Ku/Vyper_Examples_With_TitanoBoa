@@ -223,6 +223,16 @@ vyper -f abi contract.vy | jq -c .[]
 
 Thank you `Chanho` for the solution.
 
-### 16. 
+### 16. The gas values in the right most columns are truncated because of my small screen width. What can I do?
 
+1. For now this can be solved by reducing the `Computation` column's width. Open the `profiling.py` file located in the Boa installation on your venv. For me it was located in `.venv\lib\python3.11\site-packages\boa`.
+2. Look for a line which says something like `"Computation", justify="left", style="cyan", no_wrap=True, width=79`. Its part of the `_create_table` function.
+3. Change the value `79` to a smaller value, for example `60` or `50` or so. Save the file and run gas-profile again.
+4. You would have to repeat the same procedure if you update Boa later.
+
+### 17. The computation column with the vyper statements are sorted in the descending order of mean gas usage. How can I sort it in the ascending order of line numbers?
+
+1. Open `profiling.py` file located in the Boa installation directory. For me it was located in the `.venv\lib\python3.11\site-packages\boa` directory. 
+2. Locate a line which is something like: `l_profile = sorted(l_profile, key=lambda x: int(x[4]), reverse=True)`
+3. Change it to: `l_profile = sorted(l_profile, key=lambda x: _String(x[2]), reverse=False)`
 

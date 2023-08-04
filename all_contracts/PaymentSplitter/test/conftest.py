@@ -14,21 +14,21 @@ TIME_LOCK_DURATION = 7*24*60*60  # one week in seconds
 
     
 # deploy the splitter contract as a blueprint. 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def blueprint_impl():
     source = boa.load_partial("contracts/PaymentSplitter.vy") 
     blueprint = source.deploy_as_blueprint()
     return blueprint
 
 # deploy the factory contract and pass the splitter blueprint address to it.
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def splitter_factory(blueprint_impl):
     with boa.env.prank(ADMIN):
         factory =  boa.load("contracts/PaymentSplitterFactory.vy", blueprint_impl.address, FEE)
         return factory
 
 # deploy an ERC20 contract
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def erc20_token():
     with boa.env.prank(ADMIN):
         # def __init__(_name: String[32], _symbol: String[32], _decimals: uint8, supply: uint256):
