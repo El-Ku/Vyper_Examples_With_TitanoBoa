@@ -140,6 +140,8 @@ assert pay_splitter.get_total_shares() == total_shares
 An example:
 
 ```python
+    from eth_abi import encode
+    from web3 import Web3	
     function_signature = 'create_pay_splitter(address[],uint256[],address,uint256)'   
     # Encode the function parameters
     encoded_params = encode(['address[]', 'uint256[]', 'address', 'uint256'], [accounts, shares, _token, _amount])
